@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - PKL & Magang BPS Tulungagung</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bpsBlue: '#00428C',
+                        bpsOrange: '#F38118',
+                        bpsDark: '#002C61',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-200 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-4xl w-full flex flex-col md:flex-row">
+        
+        <!-- Sisi Kiri (Biru BPS) -->
+        <div class="md:w-1/2 bg-bpsBlue p-8 text-white flex flex-col justify-between relative overflow-hidden">
+            <!-- Hiasan Lengkungan Oranye -->
+            <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-bpsOrange rounded-full border-8 border-bpsDark opacity-90"></div>
+            
+            <div class="relative z-10">
+                <!-- Header Logo BPS -->
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-1 shadow-md shrink-0">
+                        <img src="{{ asset('image/bps-logo.png') }}" alt="Logo BPS" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/2/28/National_Statistical_Agency_of_Indonesia.svg'">
+                    </div>
+                    <div>
+                        <h2 class="text-[10px] font-semibold tracking-wider uppercase text-blue-200">BADAN PUSAT STATISTIK</h2>
+                        <h3 class="text-xs font-bold text-white tracking-wide">KABUPATEN TULUNGAGUNG</h3>
+                    </div>
+                </div>
+
+                <h1 class="text-3xl font-extrabold mt-6 mb-2">PKL & <span class="text-bpsOrange">Magang</span></h1>
+                <div class="w-16 h-1 bg-bpsOrange mb-4"></div>
+                <p class="text-xs text-blue-100 leading-relaxed">
+                    Sistem Informasi Pendaftaran Praktik Kerja Lapangan dan Magang Badan Pusat Statistik Kabupaten Tulungagung.
+                </p>
+            </div>
+
+            <div class="relative z-10 mt-8 flex items-center space-x-2 text-xs text-blue-100 bg-bpsDark/40 p-3 rounded-xl border border-white/10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-bpsOrange shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>Silakan login untuk mengakses sistem.</span>
+            </div>
+        </div>
+
+        <!-- Sisi Kanan (Form Input) -->
+        <div class="md:w-1/2 p-8 md:p-12 bg-white flex flex-col justify-center">
+            <h2 class="text-2xl font-bold text-gray-800">Selamat Datang</h2>
+            <div class="w-10 h-1 bg-bpsOrange mt-1 mb-2"></div>
+            <p class="text-xs text-gray-500 mb-6">Silakan masuk menggunakan akun Anda.</p>
+
+            <!-- Notifikasi Berhasil Registrasi -->
+            @if(session('success'))
+                <div class="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>{{ session('success') }}</span>
+                </div>
+            @endif
+
+            <!-- Notifikasi Error Login -->
+            @if ($errors->any())
+                <div class="mb-4 p-3 bg-red-100 text-red-700 text-xs rounded-xl border border-red-200">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            <form action="{{ route('login') }}" method="POST" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Email</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        </span>
+                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="Masukkan email" class="w-full pl-9 pr-3 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-bpsBlue focus:outline-none border-gray-300">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        </span>
+                        <input type="password" id="loginPassword" name="password" required placeholder="Masukkan password" class="w-full pl-9 pr-10 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-bpsBlue focus:outline-none border-gray-300">
+                        <button type="button" onclick="togglePassword('loginPassword')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-bpsBlue hover:bg-bpsDark text-white font-semibold py-2.5 px-4 rounded-xl shadow-md transition duration-200 flex items-center justify-center space-x-2 text-sm">
+                    <span>Login</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center text-xs text-gray-500">
+                Belum punya akun? <a href="{{ route('register') }}" class="text-bpsBlue font-bold hover:underline">Lanjut Registrasi &rarr;</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = (input.type === 'password') ? 'text' : 'password';
+        }
+    </script>
+</body>
+</html>
