@@ -6,7 +6,7 @@
     <!-- Header sambutan -->
     <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h1 class="text-xl sm:text-2xl font-black text-slate-900">Dashboard Admin BPS Tulungagung</h1>
+            <h1 class="text-xl sm:text-2xl font-black text-slate-900">Dashboard Admin BPS Kab. Tulungagung</h1>
             <p class="text-xs sm:text-sm text-slate-500 mt-1">Selamat datang, <span class="font-bold text-slate-700">{{ Auth::user()->name }}</span>. Berikut adalah ringkasan data pendaftaran magang saat ini.</p>
         </div>
         <div class="text-xs bg-sky-50 text-sky-700 font-semibold px-4 py-2 rounded-xl border border-sky-100 shrink-0">
