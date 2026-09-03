@@ -50,7 +50,7 @@
                 </div>
                 <div class="flex flex-col">
                     <span class="font-extrabold text-base tracking-tight text-slate-900 leading-none group-hover:text-bpsBlue transition">PKL & Magang</span>
-                    <span class="text-[11px] text-slate-500 font-medium tracking-wide mt-0.5">BPS Kab. Tulungagung</span>
+                    <span class="text-[11px] text-slate-500 font-medium tracking-wide mt-0.5">BPS Tulungagung</span>
                 </div>
             </a>
 
