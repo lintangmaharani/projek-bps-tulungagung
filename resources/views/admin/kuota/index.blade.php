@@ -4,14 +4,14 @@
 <div class="max-w-6xl mx-auto space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-black text-slate-800 tracking-tight">Kelola Kuota Periode Magang / PKL</h1>
-            <p class="text-xs text-slate-500 mt-1">Atur kapasitas dan batas periode pendaftaran.</p>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight">Kelola Kuota Magang & PKL</h1>
+            <p class="text-xs text-slate-500 mt-1">Atur kapasitas dan batas kuota berdasarkan kategori pendidikan.</p>
         </div>
         
         <!-- Button Modal Tambah -->
         <button onclick="toggleModal('modal-tambah')" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-bpsBlue text-white text-xs font-bold rounded-xl hover:bg-bpsDark shadow-lg shadow-blue-900/20 transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            <span>Tambah Kuota Periode</span>
+            <span>Tambah Kuota Kategori</span>
         </button>
     </div>
 
@@ -28,7 +28,7 @@
             <table class="w-full text-left text-xs text-slate-600">
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 uppercase font-bold text-[11px]">
                     <tr>
-                        <th class="py-3.5 px-4">Nama Periode</th>
+                        <th class="py-3.5 px-4">Kategori Pendidikan</th>
                         <th class="py-3.5 px-4">Durasi Pelaksanaan</th>
                         <th class="py-3.5 px-4 text-center">Batas Kuota</th>
                         <th class="py-3.5 px-4 text-center">Terisi</th>
@@ -44,11 +44,10 @@
                             $sisa = $k->jumlah_kuota - $terisi;
                         @endphp
                         <tr class="hover:bg-slate-50/80 transition">
-                            <td class="py-3.5 px-4 font-bold text-slate-800">
-                                {{ $k->nama_periode }}
-                                @if($k->keterangan)
-                                    <span class="block text-[10px] font-normal text-slate-400 mt-0.5">{{ $k->keterangan }}</span>
-                                @endif
+                            <td class="py-3.5 px-4">
+                                <span class="px-2.5 py-1 bg-blue-50 text-bpsBlue font-extrabold rounded-lg text-xs uppercase tracking-wider inline-block">
+                                    {{ $k->kategori }}
+                                </span>
                             </td>
                             <td class="py-3.5 px-4 font-medium">
                                 {{ \Carbon\Carbon::parse($k->tgl_mulai)->translatedFormat('d M Y') }} - 
@@ -72,7 +71,13 @@
                                     <span class="px-2.5 py-1 bg-slate-100 text-slate-500 border border-slate-200 rounded-full font-bold text-[10px] uppercase">Ditutup</span>
                                 @endif
                             </td>
-                            <td class="py-3.5 px-4 text-center">
+                            <td class="py-3.5 px-4 text-center space-x-1">
+                                <!-- Tombol Edit -->
+                                <button onclick="editModal({{ json_encode($k) }})" class="px-3 py-1.5 bg-amber-50 text-amber-600 font-semibold rounded-lg hover:bg-amber-100 transition inline-block">
+                                    Edit
+                                </button>
+
+                                <!-- Tombol Hapus -->
                                 <form action="{{ route('admin.kuota.destroy', $k->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kuota ini?')" class="inline-block">
                                     @csrf
                                     @method('DELETE')
@@ -85,7 +90,7 @@
                     @empty
                         <tr>
                             <td colspan="7" class="py-8 text-center text-slate-400 font-medium">
-                                Belum ada kuota periode yang dibuat. Klik tombol di atas untuk menambah.
+                                Belum ada kuota kategori yang diatur. Klik tombol di atas untuk menambah.
                             </td>
                         </tr>
                     @endforelse
@@ -100,59 +105,48 @@
 </div>
 
 <!-- MODAL TAMBAH KUOTA -->
-<div id="modal-tambah" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm {{ $errors->any() ? '' : 'hidden' }}">
+<div id="modal-tambah" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
         <div class="flex items-center justify-between border-b pb-3">
-            <h3 class="font-bold text-slate-800 text-sm">Tambah Kuota Periode Baru</h3>
+            <h3 class="font-bold text-slate-800 text-sm">Atur Kuota Kategori Baru</h3>
             <button onclick="toggleModal('modal-tambah')" class="text-slate-400 hover:text-slate-600 font-bold">&times;</button>
         </div>
-
-        @if($errors->any())
-            <div class="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs space-y-1">
-                <p class="font-bold">⚠️ Gagal Menyimpan:</p>
-                <ul class="list-disc list-inside">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
 
         <form action="{{ route('admin.kuota.store') }}" method="POST" class="space-y-3 text-xs">
             @csrf
             <div>
-                <label class="block font-semibold text-slate-600 mb-1">Nama Periode</label>
-                <input type="text" name="nama_periode" value="{{ old('nama_periode') }}" placeholder="Contoh: Gelombang 1 (Jan-Mar 2026)" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 focus:ring-2 focus:ring-bpsBlue">
+                <label class="block font-semibold text-slate-600 mb-1">Kategori Pendidikan</label>
+                <select name="kategori" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 bg-white focus:ring-2 focus:ring-bpsBlue">
+                    <option value="">-- Pilih Kategori --</option>
+                    <option value="Siswa SMK">Siswa SMK</option>
+                    <option value="Mahasiswa Magang">Mahasiswa Magang</option>
+                    <option value="Mahasiswa PKL">Mahasiswa PKL</option>
+                </select>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block font-semibold text-slate-600 mb-1">Tanggal Mulai</label>
-                    <input type="date" name="tgl_mulai" value="{{ old('tgl_mulai') }}" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 focus:ring-2 focus:ring-bpsBlue">
+                    <input type="date" name="tgl_mulai" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 focus:ring-2 focus:ring-bpsBlue">
                 </div>
                 <div>
                     <label class="block font-semibold text-slate-600 mb-1">Tanggal Selesai</label>
-                    <input type="date" name="tgl_selesai" value="{{ old('tgl_selesai') }}" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 focus:ring-2 focus:ring-bpsBlue">
+                    <input type="date" name="tgl_selesai" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 focus:ring-2 focus:ring-bpsBlue">
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block font-semibold text-slate-600 mb-1">Jumlah Kuota</label>
-                    <input type="number" name="jumlah_kuota" value="{{ old('jumlah_kuota') }}" min="1" placeholder="Misal: 5" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 focus:ring-2 focus:ring-bpsBlue">
+                    <input type="number" name="jumlah_kuota" min="1" placeholder="Misal: 5" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 focus:ring-2 focus:ring-bpsBlue">
                 </div>
                 <div>
                     <label class="block font-semibold text-slate-600 mb-1">Status</label>
                     <select name="status" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 bg-white focus:ring-2 focus:ring-bpsBlue">
-                        <option value="buka" {{ old('status') == 'buka' ? 'selected' : '' }}>Buka</option>
-                        <option value="tutup" {{ old('status') == 'tutup' ? 'selected' : '' }}>Tutup</option>
+                        <option value="buka">Buka</option>
+                        <option value="tutup">Tutup</option>
                     </select>
                 </div>
-            </div>
-
-            <div>
-                <label class="block font-semibold text-slate-600 mb-1">Keterangan (Opsional)</label>
-                <textarea name="keterangan" rows="2" placeholder="Catatan khusus periode..." class="w-full px-3.5 py-2 border rounded-xl border-slate-300 focus:ring-2 focus:ring-bpsBlue">{{ old('keterangan') }}</textarea>
             </div>
 
             <div class="pt-3 flex justify-end space-x-2">
@@ -163,9 +157,74 @@
     </div>
 </div>
 
+<!-- MODAL EDIT KUOTA -->
+<div id="modal-edit" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+        <div class="flex items-center justify-between border-b pb-3">
+            <h3 class="font-bold text-slate-800 text-sm">Edit Kuota Kategori</h3>
+            <button onclick="toggleModal('modal-edit')" class="text-slate-400 hover:text-slate-600 font-bold">&times;</button>
+        </div>
+
+        <form id="form-edit" method="POST" class="space-y-3 text-xs">
+            @csrf
+            @method('PUT')
+            <div>
+                <label class="block font-semibold text-slate-600 mb-1">Kategori Pendidikan</label>
+                <select name="kategori" id="edit-kategori" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 bg-white focus:ring-2 focus:ring-bpsBlue">
+                    <option value="Siswa SMK">Siswa SMK (Januari - Juni)</option>
+                    <option value="Mahasiswa Magang">Mahasiswa Magang (Juli - Desember)</option>
+                    <option value="Mahasiswa PKL">Mahasiswa PKL (Juli - Agustus)</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Tanggal Mulai</label>
+                    <input type="date" name="tgl_mulai" id="edit-mulai" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 focus:ring-2 focus:ring-bpsBlue">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Tanggal Selesai</label>
+                    <input type="date" name="tgl_selesai" id="edit-selesai" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 focus:ring-2 focus:ring-bpsBlue">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Jumlah Kuota</label>
+                    <input type="number" name="jumlah_kuota" id="edit-jumlah" min="1" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 focus:ring-2 focus:ring-bpsBlue">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Status</label>
+                    <select name="status" id="edit-status" required class="w-full px-3.5 py-2 border rounded-xl border-slate-300 bg-white focus:ring-2 focus:ring-bpsBlue">
+                        <option value="buka">Buka</option>
+                        <option value="tutup">Tutup</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="pt-3 flex justify-end space-x-2">
+                <button type="button" onclick="toggleModal('modal-edit')" class="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     function toggleModal(modalId) {
         document.getElementById(modalId).classList.toggle('hidden');
+    }
+
+    function editModal(data) {
+        document.getElementById('form-edit').action = "/admin/kuota/" + data.id;
+        
+        document.getElementById('edit-kategori').value = data.kategori;
+        document.getElementById('edit-mulai').value = data.tgl_mulai;
+        document.getElementById('edit-selesai').value = data.tgl_selesai;
+        document.getElementById('edit-jumlah').value = data.jumlah_kuota;
+        document.getElementById('edit-status').value = data.status;
+
+        toggleModal('modal-edit');
     }
 </script>
 @endsection

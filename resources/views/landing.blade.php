@@ -157,7 +157,7 @@
 
                             <div class="bg-white/5 border border-white/10 p-4 rounded-2xl space-y-2.5 hover:bg-white/10 transition">
                                 <div class="flex justify-between items-center">
-                                    <span class="font-bold text-sm text-white">{{ $k->nama_periode }}</span>
+                                    <span class="font-bold text-sm text-white">{{ $k->kategori}}</span>
                                     <span class="text-xs font-semibold {{ $sisa > 0 ? 'text-emerald-400' : 'text-rose-400' }}">
                                         {{ $sisa > 0 ? $sisa . ' tersisa' : 'Penuh' }}
                                     </span>

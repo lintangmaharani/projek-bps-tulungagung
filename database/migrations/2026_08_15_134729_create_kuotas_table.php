@@ -10,7 +10,9 @@ return new class extends Migration
     {
         Schema::create('kuotas', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_periode'); // Contoh: "Juli 2026", "Batch 1 2026"
+            // Tambahkan kolom kategori untuk 3 pilihan
+            $table->enum('kategori', ['Siswa SMK', 'Mahasiswa Magang', 'Mahasiswa PKL']);
+            $table->string('nama_periode'); // Contoh: "Periode SMK 2026"
             $table->date('tgl_mulai');
             $table->date('tgl_selesai');
             $table->integer('jumlah_kuota');

@@ -31,22 +31,25 @@
                 @endif
             </div>
 
-            @if($pengajuan->catatan)
+            <!-- KETERANGAN / CATATAN DARI ADMIN (MUNCUL JIKA DITERIMA ATAU DITOLAK) -->
+            @if($pengajuan->catatan_revisi)
                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
-                    <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Catatan dari Admin:</p>
-                    <p class="text-xs font-semibold text-slate-700">{{ $pengajuan->catatan }}</p>
+                    <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                        @if($pengajuan->status == 'ditolak') Alasan Penolakan dari Admin: @else Catatan dari Admin: @endif
+                    </p>
+                    <p class="text-xs font-semibold text-slate-700">{{ $pengajuan->catatan_revisi }}</p>
                 </div>
             @endif
 
-            <!-- FITUR MAHASISWA DOWNLOAD SURAT BALASAN RESMI -->
-            @if($pengajuan->file_surat_balasan)
+            <!-- FITUR MAHASISWA DOWNLOAD SURAT BALASAN RESMI (Hanya jika Diterima & Ada File) -->
+            @if($pengajuan->status == 'diterima' && $pengajuan->file_surat_balasan)
                 <div class="pt-4 text-center border-t border-slate-100">
                     <a href="{{ asset('storage/' . $pengajuan->file_surat_balasan) }}" target="_blank" download class="inline-flex items-center space-x-2 px-6 py-3 bg-emerald-600 text-white text-xs font-bold rounded-xl hover:bg-emerald-700 transition shadow-md">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <span>Download Surat Balasan Resmi BPS (PDF)</span>
                     </a>
                 </div>
-            @elseif($pengajuan->status != 'diproses')
+            @elseif($pengajuan->status == 'diterima')
                 <p class="text-center text-xs text-slate-400 italic">Surat balasan resmi dalam proses unggah oleh pihak BPS.</p>
             @endif
         </div>

@@ -115,24 +115,26 @@
                     </div>
                 </div>
 
-                <!-- TAHAP 2: RIWAYAT PENDIDIKAN -->
+                <!-- TAHAP 2: KATEGORI & RIWAYAT PENDIDIKAN -->
                 <div id="step-2" class="step-content space-y-4 hidden">
                     <div class="border-b pb-3">
-                        <h3 class="text-sm font-bold text-slate-800">Tahap 2 — Riwayat Pendidikan</h3>
-                        <p class="text-xs text-slate-400">Pilih kualifikasi instansi pendidikan Anda saat ini.</p>
+                        <h3 class="text-sm font-bold text-slate-800">Tahap 2 — Kategori Pendidikan</h3>
+                        <p class="text-xs text-slate-400">Pilih kategori pendidikan sesuai jenis pendaftaran magang/PKL.</p>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Pendidikan</label>
-                        <select id="in_tipe" name="tipe_pendidikan" onchange="togglePendidikan()" class="w-full px-3.5 py-2.5 text-xs border rounded-xl focus:ring-2 focus:ring-bpsBlue border-slate-300 bg-white">
-                            <option value="Perguruan Tinggi" {{ old('tipe_pendidikan') == 'Perguruan Tinggi' ? 'selected' : '' }}>Mahasiswa (Perguruan Tinggi)</option>
-                            <option value="SMK/SMA" {{ old('tipe_pendidikan') == 'SMK/SMA' ? 'selected' : '' }}>Siswa SMK / Sederajat</option>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Pendidikan <span class="text-rose-500">*</span></label>
+                        <select id="in_tipe" name="tipe_pendidikan" onchange="filterKuotaByKategori(); togglePendidikanLabels();" required class="w-full px-3.5 py-2.5 text-xs border rounded-xl focus:ring-2 focus:ring-bpsBlue border-slate-300 bg-white">
+                            <option value="">-- Pilih Kategori Pendidikan --</option>
+                            <option value="Siswa SMK" {{ old('tipe_pendidikan') == 'Siswa SMK' ? 'selected' : '' }}>Siswa SMK</option>
+                            <option value="Mahasiswa Magang" {{ old('tipe_pendidikan') == 'Mahasiswa Magang' ? 'selected' : '' }}>Mahasiswa Magang</option>
+                            <option value="Mahasiswa PKL" {{ old('tipe_pendidikan') == 'Mahasiswa PKL' ? 'selected' : '' }}>Mahasiswa PKL</option>
                         </select>
                     </div>
 
                     <div>
-                        <label id="lbl_instansi" class="block text-xs font-semibold text-slate-600 mb-1">Nama Universitas / Perguruan Tinggi</label>
-                        <input type="text" id="in_instansi" name="nama_instansi" value="{{ old('nama_instansi') }}" required placeholder="Contoh : Universitas Brawijaya" class="w-full px-3.5 py-2.5 text-xs border rounded-xl focus:ring-2 focus:ring-bpsBlue border-slate-300">
+                        <label id="lbl_instansi" class="block text-xs font-semibold text-slate-600 mb-1">Nama Sekolah / Perguruan Tinggi</label>
+                        <input type="text" id="in_instansi" name="nama_instansi" value="{{ old('nama_instansi') }}" required placeholder="Contoh : SMK Negeri 1 Tulungagung / Universitas ..." class="w-full px-3.5 py-2.5 text-xs border rounded-xl focus:ring-2 focus:ring-bpsBlue border-slate-300">
                     </div>
 
                     <div id="box_fakultas">
@@ -142,12 +144,12 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label id="lbl_prodi" class="block text-xs font-semibold text-slate-600 mb-1">Program Studi</label>
-                            <input type="text" id="in_prodi" name="prodi_jurusan" value="{{ old('prodi_jurusan') }}" required placeholder="Contoh : Teknik Informatika" class="w-full px-3.5 py-2.5 text-xs border rounded-xl focus:ring-2 focus:ring-bpsBlue border-slate-300">
+                            <label id="lbl_prodi" class="block text-xs font-semibold text-slate-600 mb-1">Jurusan / Program Studi</label>
+                            <input type="text" id="in_prodi" name="prodi_jurusan" value="{{ old('prodi_jurusan') }}" required placeholder="Contoh : Teknik Informatika / TKJ" class="w-full px-3.5 py-2.5 text-xs border rounded-xl focus:ring-2 focus:ring-bpsBlue border-slate-300">
                         </div>
                         <div>
-                            <label id="lbl_tingkat" class="block text-xs font-semibold text-slate-600 mb-1">Semester Aktif</label>
-                            <input type="text" id="in_tingkat" name="tingkat" value="{{ old('tingkat') }}" required placeholder="Contoh : Semester 6 / Kelas 11" class="w-full px-3.5 py-2.5 text-xs border rounded-xl focus:ring-2 focus:ring-bpsBlue border-slate-300">
+                            <label id="lbl_tingkat" class="block text-xs font-semibold text-slate-600 mb-1">Kelas / Semester Aktif</label>
+                            <input type="text" id="in_tingkat" name="tingkat" value="{{ old('tingkat') }}" required placeholder="Contoh : Kelas XI / Semester 6" class="w-full px-3.5 py-2.5 text-xs border rounded-xl focus:ring-2 focus:ring-bpsBlue border-slate-300">
                         </div>
                     </div>
                 </div>
@@ -155,52 +157,50 @@
                 <!-- TAHAP 3: PERIODE, KUOTA & BERKAS -->
                 <div id="step-3" class="step-content space-y-4 hidden">
                     <div class="border-b pb-3">
-                        <h3 class="text-sm font-bold text-slate-800">Tahap 3 — Kuota, Periode & Upload Berkas</h3>
-                        <p class="text-xs text-slate-400">Pilih kuota periode magang yang dibuka dan unggah dokumen persyaratan.</p>
+                        <h3 class="text-sm font-bold text-slate-800">Tahap 3 — Kuota Periode & Upload Berkas</h3>
+                        <p class="text-xs text-slate-400">Pilih kuota sesuai kategori yang Anda pilih dan unggah dokumen persyaratan.</p>
                     </div>
 
                     <!-- DROPDOWN PILIHAN KUOTA PERIODE -->
                     <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100 space-y-1.5">
                         <label class="block text-xs font-bold text-bpsBlue">
-                            Pilih Kuota / Periode <span class="text-rose-500">*</span>
+                            Pilih Kuota / Periode Kategori <span class="text-rose-500">*</span>
                         </label>
                         <select id="in_kuota" name="kuota_id" required onchange="updateTanggalBounds()" class="w-full px-3.5 py-2.5 text-xs border rounded-xl focus:ring-2 focus:ring-bpsBlue border-slate-300 bg-white">
-                            <option value="" data-mulai="" data-selesai="">-- Pilih Periode Kuota yang Tersedia --</option>
-                            @forelse($kuotas as $k)
-                                @php $sisa = $k->jumlah_kuota - $k->terisi; @endphp
+                            <option value="" data-kategori="" data-mulai="" data-selesai="">-- Pilih Kategori Terlebih Dahulu di Tahap 2 --</option>
+                            @foreach($kuotas as $k)
+                                @php $sisa = $k->jumlah_kuota - ($k->terisi ?? 0); @endphp
                                 <option value="{{ $k->id }}" 
-                                        data-nama="{{ $k->nama_periode }}" 
+                                        data-kategori="{{ $k->kategori }}"
                                         data-mulai="{{ $k->tgl_mulai }}" 
                                         data-selesai="{{ $k->tgl_selesai }}" 
                                         {{ old('kuota_id') == $k->id ? 'selected' : '' }}>
-                                    {{ $k->nama_periode }} ({{ \Carbon\Carbon::parse($k->tgl_mulai)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($k->tgl_selesai)->format('d/m/Y') }}) — Sisa: {{ $sisa }} Slot
+                                    [{{ $k->kategori }}] Pelaksanaan: {{ \Carbon\Carbon::parse($k->tgl_mulai)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($k->tgl_selesai)->format('d/m/Y') }} (Sisa Slot: {{ $sisa }})
                                 </option>
-                            @empty
-                                <option value="" disabled>Mohon maaf, tidak ada kuota magang yang tersedia saat ini.</option>
-                            @endforelse
+                            @endforeach
                         </select>
-                        <p class="text-[11px] text-slate-500">Tanggal pengajuan PKL Anda akan otomatis dikunci berdasarkan periode yang dipilih.</p>
+                        <p class="text-[11px] text-slate-500">Rentang tanggal pilihan akan dikunci otomatis sesuai kuota kategori yang tersedia.</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Mulai</label>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Mulai <span class="text-rose-500">*</span></label>
                             <input type="date" id="in_tgl_mulai" name="tgl_mulai" value="{{ old('tgl_mulai') }}" required class="w-full px-3.5 py-2.5 text-xs border rounded-xl focus:ring-2 focus:ring-bpsBlue border-slate-300">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Selesai</label>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Selesai <span class="text-rose-500">*</span></label>
                             <input type="date" id="in_tgl_selesai" name="tgl_selesai" value="{{ old('tgl_selesai') }}" required class="w-full px-3.5 py-2.5 text-xs border rounded-xl focus:ring-2 focus:ring-bpsBlue border-slate-300">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Upload CV Terbaru (PDF, DOC, ZIP, Gambar — Max 5MB)</label>
-                        <input type="file" id="in_cv" name="file_cv" accept=".pdf,.doc,.docx,.zip,.rar,.png,.jpg,.jpeg" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-bpsBlue file:text-white hover:file:bg-bpsDark cursor-pointer">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Upload Pas Foto / Foto Diri (Format: JPG, PNG — Max 5MB) <span class="text-rose-500">*</span></label>
+                        <input type="file" id="in_foto" name="foto" accept=".jpg,.jpeg,.png" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-bpsBlue file:text-white hover:file:bg-bpsDark cursor-pointer">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Upload Surat Pengantar Resmi (PDF, DOC, ZIP, Gambar — Max 5MB)</label>
-                        <input type="file" id="in_surat" name="file_surat_pengantar" accept=".pdf,.doc,.docx,.zip,.rar,.png,.jpg,.jpeg" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-bpsBlue file:text-white hover:file:bg-bpsDark cursor-pointer">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Upload Surat Pengantar Resmi (PDF, DOC, Gambar — Max 5MB) <span class="text-rose-500">*</span></label>
+                        <input type="file" id="in_surat" name="file_surat_pengantar" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-bpsBlue file:text-white hover:file:bg-bpsDark cursor-pointer">
                     </div>
                 </div>
 
@@ -227,8 +227,8 @@
                             <p class="text-slate-500">Kategori: <span id="rev_tipe" class="font-bold text-slate-800 block uppercase"></span></p>
                             <p class="text-slate-500">Instansi: <span id="rev_instansi" class="font-semibold text-slate-800 block"></span></p>
                             <p id="box_rev_fakultas" class="text-slate-500">Fakultas: <span id="rev_fakultas" class="font-medium text-slate-800 block"></span></p>
-                            <p class="text-slate-500">Prodi/Jurusan: <span id="rev_prodi" class="font-medium text-slate-800 block"></span></p>
-                            <p class="text-slate-500">Tingkat: <span id="rev_tingkat" class="font-medium text-slate-800 block"></span></p>
+                            <p class="text-slate-500">Jurusan/Prodi: <span id="rev_prodi" class="font-medium text-slate-800 block"></span></p>
+                            <p class="text-slate-500">Kelas/Semester: <span id="rev_tingkat" class="font-medium text-slate-800 block"></span></p>
                         </div>
 
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
@@ -236,7 +236,7 @@
                             <p class="text-slate-500">Periode Kuota: <span id="rev_kuota" class="font-bold text-bpsBlue block"></span></p>
                             <p class="text-slate-500">Tgl Mulai: <span id="rev_tgl_mulai" class="font-semibold text-slate-800 block"></span></p>
                             <p class="text-slate-500">Tgl Selesai: <span id="rev_tgl_selesai" class="font-semibold text-slate-800 block"></span></p>
-                            <p class="text-slate-500">File CV: <span id="rev_cv_name" class="font-medium text-emerald-600 block truncate"></span></p>
+                            <p class="text-slate-500">File Foto: <span id="rev_cv_name" class="font-medium text-emerald-600 block truncate"></span></p>
                             <p class="text-slate-500">File Surat: <span id="rev_surat_name" class="font-medium text-emerald-600 block truncate"></span></p>
                         </div>
                     </div>
@@ -272,7 +272,7 @@
     @endif
 </div>
 
-<!-- SCRIPT JAVASCRIPT NAVIGASI & KONTROL TANGGAL -->
+<!-- SCRIPT JAVASCRIPT LOGIKA KATEGORI & TANGGAL OTOMATIS -->
 <script>
     let currentStep = 1;
 
@@ -312,33 +312,63 @@
             document.getElementById('rev_tipe').innerText = tipe;
             document.getElementById('rev_instansi').innerText = document.getElementById('in_instansi').value || '-';
             document.getElementById('rev_fakultas').innerText = document.getElementById('in_fakultas').value || '-';
-            document.getElementById('box_rev_fakultas').style.display = (tipe === 'Perguruan Tinggi') ? 'block' : 'none';
+            document.getElementById('box_rev_fakultas').style.display = (tipe !== 'Siswa SMK') ? 'block' : 'none';
             document.getElementById('rev_prodi').innerText = document.getElementById('in_prodi').value || '-';
             document.getElementById('rev_tingkat').innerText = document.getElementById('in_tingkat').value || '-';
 
             const kuotaSelect = document.getElementById('in_kuota');
             const selectedOption = kuotaSelect.options[kuotaSelect.selectedIndex];
-            const selectedKuotaText = selectedOption ? selectedOption.getAttribute('data-nama') : '-';
-            document.getElementById('rev_kuota').innerText = selectedKuotaText || '-';
+            document.getElementById('rev_kuota').innerText = selectedOption ? selectedOption.text : '-';
 
             document.getElementById('rev_tgl_mulai').innerText = document.getElementById('in_tgl_mulai').value || '-';
             document.getElementById('rev_tgl_selesai').innerText = document.getElementById('in_tgl_selesai').value || '-';
             
-            const cvInput = document.getElementById('in_cv');
-            document.getElementById('rev_cv_name').innerText = cvInput.files[0] ? cvInput.files[0].name : 'Belum diunggah';
+            const fotoInput = document.getElementById('in_foto');
+            document.getElementById('rev_cv_name').innerText = fotoInput.files[0] ? fotoInput.files[0].name : 'Belum diunggah';
 
             const suratInput = document.getElementById('in_surat');
             document.getElementById('rev_surat_name').innerText = suratInput.files[0] ? suratInput.files[0].name : 'Belum diunggah';
         }
     }
 
-    function togglePendidikan() {
+    function togglePendidikanLabels() {
         const tipe = document.getElementById('in_tipe').value;
-        const isMahasiswa = (tipe === 'Perguruan Tinggi');
-        document.getElementById('lbl_instansi').innerText = isMahasiswa ? 'Nama Universitas / Perguruan Tinggi' : 'Nama Sekolah (SMK/Sederajat)';
-        document.getElementById('lbl_prodi').innerText = isMahasiswa ? 'Program Studi' : 'Jurusan';
-        document.getElementById('lbl_tingkat').innerText = isMahasiswa ? 'Semester Aktif' : 'Kelas';
-        document.getElementById('box_fakultas').style.display = isMahasiswa ? 'block' : 'none';
+        const isSmk = (tipe === 'Siswa SMK');
+        
+        document.getElementById('lbl_instansi').innerText = isSmk ? 'Nama Sekolah (SMK)' : 'Nama Universitas / Perguruan Tinggi';
+        document.getElementById('lbl_prodi').innerText = isSmk ? 'Jurusan' : 'Program Studi';
+        document.getElementById('lbl_tingkat').innerText = isSmk ? 'Kelas' : 'Semester Aktif';
+        document.getElementById('box_fakultas').style.display = isSmk ? 'none' : 'block';
+    }
+
+    function filterKuotaByKategori() {
+        const selectedTipe = document.getElementById('in_tipe').value;
+        const kuotaSelect = document.getElementById('in_kuota');
+        const options = kuotaSelect.options;
+
+        let foundFirst = false;
+        kuotaSelect.value = ""; 
+
+        for (let i = 0; i < options.length; i++) {
+            let opt = options[i];
+            let optKategori = opt.getAttribute('data-kategori');
+
+            if (!optKategori) {
+                continue; 
+            }
+
+            if (optKategori === selectedTipe) {
+                opt.style.display = "block";
+                if (!foundFirst) {
+                    kuotaSelect.value = opt.value; 
+                    foundFirst = true;
+                }
+            } else {
+                opt.style.display = "none";
+            }
+        }
+
+        updateTanggalBounds();
     }
 
     function updateTanggalBounds() {
@@ -355,26 +385,25 @@
             inputMulai.min = tglMulaiPeriode;
             inputMulai.max = tglSelesaiPeriode;
 
+            inputSelesai.min = tglMulauPeriode; // disesuaikan aman
             inputSelesai.min = tglMulaiPeriode;
             inputSelesai.max = tglSelesaiPeriode;
 
-            if (inputMulai.value && (inputMulai.value < tglMulaiPeriode || inputMulai.value > tglSelesaiPeriode)) {
-                inputMulai.value = '';
-            }
-            if (inputSelesai.value && (inputSelesai.value < tglMulaiPeriode || inputSelesai.value > tglSelesaiPeriode)) {
-                inputSelesai.value = '';
-            }
+            inputMulai.value = tglMulaiPeriode; 
+            inputSelesai.value = tglSelesaiPeriode; 
         } else {
             inputMulai.removeAttribute('min');
             inputMulai.removeAttribute('max');
             inputSelesai.removeAttribute('min');
             inputSelesai.removeAttribute('max');
+            inputMulai.value = '';
+            inputSelesai.value = '';
         }
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        updateTanggalBounds();
-        togglePendidikan();
+        togglePendidikanLabels();
+        filterKuotaByKategori();
     });
 </script>
 @endsection

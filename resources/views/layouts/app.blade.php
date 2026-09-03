@@ -49,7 +49,7 @@
                     <!-- 2. Kuota & Periode Magang -->
                     <a href="{{ route('admin.kuota.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition duration-200 text-xs font-medium {{ request()->routeIs('admin.kuota.*') ? 'bg-bpsOrange font-bold text-white shadow-lg shadow-orange-500/30' : 'text-blue-100 hover:bg-white/10' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        <span>Kuota & Periode Magang</span>
+                        <span>Kelola Kuota Magang & PKL</span>
                     </a>
 
                     <!-- 3. Kelola Pengajuan -->

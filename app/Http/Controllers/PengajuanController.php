@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pengajuan;
 use App\Models\Kuota;
@@ -81,7 +82,7 @@ class PengajuanController extends Controller
                 $kuota ? 'before_or_equal:' . $kuota->tgl_selesai : '',
             ],
             
-            'file_cv' => 'required|file|mimes:pdf,doc,docx,zip,rar,png,jpg,jpeg|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png,application/zip,application/x-zip-compressed,application/x-rar-compressed|max:5120',
+            'foto'                 => 'required|file|image|mimes:jpeg,png,jpg|max:5120',
             'file_surat_pengantar' => 'required|file|mimes:pdf,doc,docx,zip,rar,png,jpg,jpeg|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png,application/zip,application/x-zip-compressed,application/x-rar-compressed|max:5120',
         ], [
             // Pesan Error Kustom untuk Tanggal Periode
@@ -91,7 +92,7 @@ class PengajuanController extends Controller
             'tgl_selesai.after_or_equal'  => 'Tanggal selesai magang harus sama atau setelah tanggal mulai.',
         ]);
 
-        $cvPath = $request->file('file_cv')->store('berkas/cv', 'public');
+        $fotoPath  = $request->file('foto')->store('foto_pemohon', 'public');
         $suratPath = $request->file('file_surat_pengantar')->store('berkas/surat', 'public');
 
         Pengajuan::create([
@@ -110,7 +111,7 @@ class PengajuanController extends Controller
             'tingkat'              => $request->tingkat,
             'tgl_mulai'            => $request->tgl_mulai,
             'tgl_selesai'          => $request->tgl_selesai,
-            'file_cv'              => $cvPath,
+            'foto'                 => $fotoPath,
             'file_surat_pengantar' => $suratPath,
             'status'               => 'diproses',
         ]);

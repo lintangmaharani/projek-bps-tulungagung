@@ -83,7 +83,7 @@ Route::middleware(['auth'])->group(function () {
     // Pengajuan PKL / Magang
     Route::get('/mahasiswa/pengajuan', [PengajuanController::class, 'index'])->name('pengajuan.index');
     Route::post('/mahasiswa/pengajuan', [PengajuanController::class, 'store'])->name('pengajuan.store');
-    Route::get('/pengajuan/status', [PengajuanController::class, 'status'])->name('pengajuan.status');
+    Route::get('/mahasiswa/status', [PengajuanController::class, 'status'])->name('pengajuan.status');
 
     // Jurnal Harian Mahasiswa 
     Route::get('/mahasiswa/jurnal', [JurnalController::class, 'index'])->name('mahasiswa.jurnal.index');

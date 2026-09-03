@@ -20,12 +20,11 @@ class KuotaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_periode' => 'required|string|max:255',
+            'kategori'     => 'required|in:Siswa SMK,Mahasiswa Magang,Mahasiswa PKL',
             'tgl_mulai'    => 'required|date',
             'tgl_selesai'  => 'required|date|after_or_equal:tgl_mulai',
             'jumlah_kuota' => 'required|integer|min:1',
             'status'       => 'required|in:buka,tutup',
-            'keterangan'   => 'nullable|string',
         ]);
 
         Kuota::create($validated);
@@ -33,18 +32,17 @@ class KuotaController extends Controller
         return redirect()->route('admin.kuota.index')->with('success', 'Periode kuota magang berhasil ditambahkan.');
     }
 
-    public function update(Request $request, Kuota $kuota)
+    public function update(Request $request, Kuota $kuotum)
     {
         $validated = $request->validate([
-            'nama_periode' => 'required|string|max:255',
+            'kategori'     => 'required|in:Siswa SMK,Mahasiswa Magang,Mahasiswa PKL',
             'tgl_mulai'    => 'required|date',
             'tgl_selesai'  => 'required|date|after_or_equal:tgl_mulai',
             'jumlah_kuota' => 'required|integer|min:1',
             'status'       => 'required|in:buka,tutup',
-            'keterangan'   => 'nullable|string',
         ]);
 
-        $kuota->update($validated);
+        $kuotum->update($validated);
 
         return redirect()->route('admin.kuota.index')->with('success', 'Data kuota magang berhasil diperbarui.');
     }

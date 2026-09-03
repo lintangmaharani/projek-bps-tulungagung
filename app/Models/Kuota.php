@@ -10,12 +10,11 @@ class Kuota extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nama_periode',
+        'kategori',
         'tgl_mulai',
         'tgl_selesai',
         'jumlah_kuota',
         'status',
-        'keterangan',
     ];
 
     public function pengajuans()

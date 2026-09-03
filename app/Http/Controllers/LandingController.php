@@ -10,18 +10,16 @@ class LandingController extends Controller
 {
     public function index()
     {
-        // Mengambil kuota yang statusnya 'buka'
+        // 1. Ambil kuota yang statusnya 'buka'
         $kuotas = Kuota::where('status', 'buka')
             ->orderBy('tgl_mulai', 'asc')
-            ->take(3) // Batasi maksimal 3 periode yang tampil di beranda agar tetap rapi
+            ->take(3)
             ->get(); 
 
-        return view('landing', compact('kuotas'));
-
-        // Mengambil semua data CMS dan mengubahnya menjadi array asosiatif key => value
+        // 2. Ambil semua data CMS
         $contents = CmsContent::all()->pluck('value', 'key');
         
-        // Sesuaikan 'landing' dengan nama file blade landing page Anda (misal: landing.blade.php)
-        return view('landing', compact('contents'));
+        // 3. Kirim kedua variabel secara bersamaan ke view 'landing'
+        return view('landing', compact('kuotas', 'contents'));
     }
 }
