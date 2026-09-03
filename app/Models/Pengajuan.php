@@ -25,12 +25,12 @@ class Pengajuan extends Model
         'tingkat',
         'tgl_mulai',
         'tgl_selesai',
-        'file_cv',
+        'foto',
         'file_surat_pengantar',
         'file_surat_balasan',
         'file_sertifikat', 
         'status',
-        'catatan3',
+        'catatan_revisi',
     ];
 
     // Relasi ke Model Kuota

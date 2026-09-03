@@ -312,7 +312,10 @@
             document.getElementById('rev_tipe').innerText = tipe;
             document.getElementById('rev_instansi').innerText = document.getElementById('in_instansi').value || '-';
             document.getElementById('rev_fakultas').innerText = document.getElementById('in_fakultas').value || '-';
+            
+            // Fakultas disembunyikan jika Siswa SMK
             document.getElementById('box_rev_fakultas').style.display = (tipe !== 'Siswa SMK') ? 'block' : 'none';
+            
             document.getElementById('rev_prodi').innerText = document.getElementById('in_prodi').value || '-';
             document.getElementById('rev_tingkat').innerText = document.getElementById('in_tingkat').value || '-';
 
@@ -335,10 +338,23 @@
         const tipe = document.getElementById('in_tipe').value;
         const isSmk = (tipe === 'Siswa SMK');
         
-        document.getElementById('lbl_instansi').innerText = isSmk ? 'Nama Sekolah (SMK)' : 'Nama Universitas / Perguruan Tinggi';
-        document.getElementById('lbl_prodi').innerText = isSmk ? 'Jurusan' : 'Program Studi';
-        document.getElementById('lbl_tingkat').innerText = isSmk ? 'Kelas' : 'Semester Aktif';
-        document.getElementById('box_fakultas').style.display = isSmk ? 'none' : 'block';
+        // Menyesuaikan label berdasarkan pilihan
+        document.getElementById('lbl_instansi').innerText = isSmk ? 'Nama Sekolah (SMK) *' : 'Nama Universitas / Perguruan Tinggi *';
+        document.getElementById('lbl_prodi').innerText = isSmk ? 'Jurusan (Keahlian) *' : 'Program Studi / Jurusan *';
+        document.getElementById('lbl_tingkat').innerText = isSmk ? 'Kelas *' : 'Semester Aktif *';
+        
+        // Sembunyikan atau tampilkan input fakultas
+        const boxFakultas = document.getElementById('box_fakultas');
+        const inputFakultas = document.getElementById('in_fakultas');
+        
+        if (isSmk) {
+            boxFakultas.style.display = 'none';
+            inputFakultas.removeAttribute('required');
+            inputFakultas.value = ''; // Kosongkan nilai jika pindah ke SMK
+        } else {
+            boxFakultas.style.display = 'block';
+            inputFakultas.setAttribute('required', 'required');
+        }
     }
 
     function filterKuotaByKategori() {
@@ -385,7 +401,6 @@
             inputMulai.min = tglMulaiPeriode;
             inputMulai.max = tglSelesaiPeriode;
 
-            inputSelesai.min = tglMulauPeriode; // disesuaikan aman
             inputSelesai.min = tglMulaiPeriode;
             inputSelesai.max = tglSelesaiPeriode;
 

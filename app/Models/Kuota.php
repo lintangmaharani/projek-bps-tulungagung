@@ -34,4 +34,9 @@ class Kuota extends Model
         $sisa = $this->jumlah_kuota - $this->terisi;
         return $sisa < 0 ? 0 : $sisa;
     }
+
+    public function divisi()
+    {
+        return $this->belongsTo(Divisi::class, 'divisi_id'); 
+    }
 }

@@ -12,6 +12,7 @@ class Jurnal extends Model
     protected $fillable = [
         'user_id',
         'pengajuan_id',
+        'divisi_id', 
         'tanggal',
         'jam_mulai',
         'jam_selesai',
@@ -28,5 +29,10 @@ class Jurnal extends Model
     public function pengajuan()
     {
         return $this->belongsTo(Pengajuan::class);
+    }
+
+    public function divisi()
+    {
+        return $this->belongsTo(Divisi::class, 'divisi_id');
     }
 }

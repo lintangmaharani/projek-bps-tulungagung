@@ -47,6 +47,16 @@
             </div>
 
             <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Divisi Tempat Bertugas</label>
+                <select name="divisi_id" required class="w-full px-3.5 py-2.5 text-xs border rounded-xl focus:ring-2 focus:ring-bpsBlue border-slate-300 bg-white">
+                    <option value="">-- Pilih Divisi --</option>
+                    @foreach($divisis as $divisi)
+                        <option value="{{ $divisi->id }}">{{ $divisi->nama_divisi }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Foto / Dokumentasi (Opsional: JPG, PNG, PDF - Max 3MB)</label>
                 <input type="file" name="file_dokumentasi" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-bpsBlue file:text-white hover:file:bg-bpsDark cursor-pointer">
             </div>
@@ -66,57 +76,78 @@
         </div>
         
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
-                        <th class="p-4">Tanggal & Waktu</th>
-                        <th class="p-4">Kegiatan & Deskripsi</th>
-                        <th class="p-4">Dokumentasi</th>
-                        <th class="p-4 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 text-xs">
-                    @forelse($jurnals as $jurnal)
-                        <tr class="hover:bg-slate-50/50">
-                            <td class="p-4 whitespace-nowrap">
-                                <div class="font-bold text-slate-800">{{ \Carbon\Carbon::parse($jurnal->tanggal)->format('d M Y') }}</div>
-                                <div class="text-[11px] text-slate-400 mt-0.5">
-                                    {{ $jurnal->jam_mulai ? \Carbon\Carbon::parse($jurnal->jam_mulai)->format('H:i') : '-' }} - 
-                                    {{ $jurnal->jam_selesai ? \Carbon\Carbon::parse($jurnal->jam_selesai)->format('H:i') : '-' }} WIB
-                                </div>
-                            </td>
-                            <td class="p-4">
-                                <p class="font-bold text-slate-800">{{ $jurnal->kegiatan }}</p>
-                                <p class="text-slate-500 text-[11px] mt-1 leading-relaxed">{{ $jurnal->deskripsi }}</p>
-                            </td>
-                            <td class="p-4">
-                                @if($jurnal->file_dokumentasi)
-                                    <a href="{{ asset('storage/' . $jurnal->file_dokumentasi) }}" target="_blank" class="inline-flex items-center space-x-1 text-bpsBlue font-semibold hover:underline">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                        <span>Lihat File</span>
-                                    </a>
-                                @else
-                                    <span class="text-slate-400 font-medium">-</span>
-                                @endif
-                            </td>
-                            <td class="p-4 text-center">
-                                <form action="{{ route('jurnal.destroy', $jurnal->id) }}" method="POST" onsubmit="return confirm('Hapus jurnal kegiatan ini?')">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-4">Tanggal & Waktu</th>
+                    <th class="py-3 px-4">Divisi</th> <!-- Kolom Divisi Baru -->
+                    <th class="py-3 px-4">Kegiatan & Deskripsi</th>
+                    <th class="py-3 px-4">Dokumentasi</th>
+                    <th class="py-3 px-4 text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm">
+                @forelse($jurnals as $jurnal)
+                    <tr>
+                        {{-- Kolom Tanggal & Waktu --}}
+                        <td class="py-4 px-4 align-top">
+                            <div class="font-bold text-slate-800 text-xs">{{ \Carbon\Carbon::parse($jurnal->tanggal)->translatedFormat('d M Y') }}</div>
+                            <div class="text-xs text-slate-400 mt-0.5">
+                                {{ $jurnal->jam_mulai ? substr($jurnal->jam_mulai, 0, 5) : '--:--' }} - 
+                                {{ $jurnal->jam_selesai ? substr($jurnal->jam_selesai, 0, 5) : '--:--' }} WIB
+                            </div>
+                        </td>
+
+                        {{-- Kolom Divisi (Dipisah Sendiri) --}}
+                        <td class="py-4 px-4 align-top">
+                            <span class="inline-block px-2.5 py-1 bg-blue-50 text-bpsBlue font-semibold rounded-lg text-xs">
+                                {{ $jurnal->divisi->nama_divisi ?? 'Tanpa Divisi' }}
+                            </span>
+                        </td>
+
+                        {{-- Kolom Kegiatan & Deskripsi --}}
+                        <td class="py-4 px-4 align-top">
+                            <div class="font-bold text-slate-800 text-xs mb-0.5">{{ $jurnal->kegiatan }}</div>
+                            <div class="text-xs text-slate-500 line-clamp-2">{{ $jurnal->deskripsi }}</div>
+                        </td>
+
+                        {{-- Kolom Dokumentasi --}}
+                        <td class="py-4 px-4 align-top">
+                            @if($jurnal->file_dokumentasi)
+                                <a href="{{ asset('storage/' . $jurnal->file_dokumentasi) }}" target="_blank" class="text-xs font-semibold text-bpsBlue hover:underline flex items-center space-x-1">
+                                    <span>Lihat File</span>
+                                </a>
+                            @else
+                                <span class="text-xs text-slate-400">Tidak ada</span>
+                            @endif
+                        </td>
+
+                        {{-- Kolom Aksi --}}
+                        <td class="py-4 px-4 align-top text-center">
+                            <div class="flex items-center justify-center space-x-2">
+                                <a href="{{ route('jurnal.edit', $jurnal->id) }}" class="p-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition">
+                                    <!-- Ikon Edit -->
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                </a>
+                                <form action="{{ route('jurnal.destroy', $jurnal->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus jurnal ini?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    <button type="submit" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition">
+                                        <!-- Ikon Hapus -->
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </button>
                                 </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="p-8 text-center text-slate-400">Belum ada jurnal kegiatan yang dibuat.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="py-8 text-center text-xs text-slate-400">Belum ada riwayat jurnal kegiatan yang dicatat.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
         <div class="p-4 border-t border-slate-100">
             {{ $jurnals->links() }}
         </div>

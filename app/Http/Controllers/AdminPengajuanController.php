@@ -8,37 +8,55 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminPengajuanController extends Controller
 {
-    // Tambahkan method dashboard ini untuk mengatur halaman utama admin
     public function dashboard()
     {
-        // 1. Statistik Utama (Stat Cards)
+        // 1. Data untuk Stat Cards
         $totalPendaftar = Pengajuan::count();
         $totalMenunggu  = Pengajuan::where('status', 'diproses')->count();
         $totalAktif     = Pengajuan::where('status', 'diterima')->count();
         $totalSelesai   = Pengajuan::where('status', 'selesai')->count();
 
-        // 2. Data untuk Diagram (Berdasarkan tipe_pendidikan atau tingkat)
-        // Asumsi di migrasi Anda ada kolom 'tipe_pendidikan' atau 'tingkat'
-        $jumlahMahasiswa = Pengajuan::where('tipe_pendidikan', 'LIKE', '%Perguruan Tinggi%')->orWhere('tipe_pendidikan', 'LIKE', '%Mahasiswa%')->count();
-        $jumlahSiswa     = Pengajuan::where('tipe_pendidikan', 'LIKE', '%SMK%')->orWhere('tipe_pendidikan', 'LIKE', '%SMA%')->orWhere('tipe_pendidikan', 'LIKE', '%Siswa%')->count();
+        // 2. Data untuk Diagram Lingkaran (3 Kategori)
+        $jumlahMahasiswaMagang = Pengajuan::where('tipe_pendidikan', 'Mahasiswa Magang')->count();
+        $jumlahMahasiswaPKL    = Pengajuan::where('tipe_pendidikan', 'Mahasiswa PKL')->count();
+        $jumlahSiswa           = Pengajuan::where('tipe_pendidikan', 'Siswa SMK')->count();
 
-        // 3. 5 Data terbaru
+        // 3. Data untuk Tabel Terbaru & Lonceng Notifikasi
         $recentPengajuans = Pengajuan::latest()->take(5)->get();
 
         return view('admin.dashboard', compact(
-            'totalPendaftar', 
-            'totalMenunggu', 
-            'totalAktif', 
-            'totalSelesai', 
-            'jumlahMahasiswa',
+            'totalPendaftar',
+            'totalMenunggu',
+            'totalAktif',
+            'totalSelesai',
+            'jumlahMahasiswaMagang',
+            'jumlahMahasiswaPKL',
             'jumlahSiswa',
             'recentPengajuans'
         ));
     }
     
-    public function index()
+    public function index(Request $request)
     {
-        $pengajuanList = Pengajuan::latest()->get();
+        $query = Pengajuan::latest();
+
+        // Fitur Pencarian (Nama, Email, atau Instansi)
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%")
+                ->orWhere('nama_instansi', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Fitur Filter Berdasarkan Tipe Pendidikan
+        if ($request->has('tipe') && $request->tipe != '') {
+            $query->where('tipe_pendidikan', $request->tipe);
+        }
+
+        $pengajuanList = $query->get();
+
         return view('admin.pengajuan.index', compact('pengajuanList'));
     }
 
@@ -57,18 +75,18 @@ class AdminPengajuanController extends Controller
 
         $pengajuan = Pengajuan::findOrFail($id);
 
-        // Jika di database MySQL nama kolom kamu adalah 'catatan_revisi':
         $dataUpdate = [
             'status'         => $request->status,
             'catatan_revisi' => $request->catatan, 
         ];
 
         // Jika Admin mengunggah file surat balasan
-        if ($request->hasFile('file_surat_balasan')) {
+        $file = $request->file('file_surat_balasan');
+        if ($file) {
             if ($pengajuan->file_surat_balasan) {
                 Storage::delete('public/' . $pengajuan->file_surat_balasan);
             }
-            $path = $request->file('file_surat_balasan')->store('surat_balasan', 'public');
+            $path = $file->store('surat_balasan', 'public');
             $dataUpdate['file_surat_balasan'] = $path;
         }
 
