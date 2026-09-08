@@ -8,12 +8,19 @@ use Illuminate\Http\Request;
 
 class KuotaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $kuotas = Kuota::withCount(['pengajuans as terisi' => function ($query) {
-            $query->whereIn('status', ['diterima', 'diproses']);
-        }])->orderBy('tgl_mulai', 'asc')->paginate(10);
+        $query = Kuota::query();
 
+        if ($request->filled('search')) {
+            $query->where('kategori', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('kategori')) {
+            $query->where('kategori', $request->kategori);
+        }
+
+        $kuotas = $query->latest()->paginate(10);
         return view('admin.kuota.index', compact('kuotas'));
     }
 
