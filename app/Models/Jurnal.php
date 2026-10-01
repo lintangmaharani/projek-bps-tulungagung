@@ -12,13 +12,18 @@ class Jurnal extends Model
     protected $fillable = [
         'user_id',
         'pengajuan_id',
-        'divisi_id', 
+        'divisi_id',
         'tanggal',
         'jam_mulai',
         'jam_selesai',
         'kegiatan',
         'deskripsi',
         'file_dokumentasi',
+        'status_verifikasi',
+        'feedback_admin',
+    ];
+    protected $casts = [
+        'tanggal' => 'date',
     ];
 
     public function user()
