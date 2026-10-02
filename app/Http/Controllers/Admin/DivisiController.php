@@ -9,14 +9,40 @@ use Illuminate\Http\Request;
 class DivisiController extends Controller
 {
     // Menampilkan halaman daftar divisi beserta statistik ringkasnya
-    public function index()
+    public function index(Request $request)
     {
-        $divisis = Divisi::latest()->get();
-        $totalDivisi = $divisis->count();
-        $aktifDivisi = $divisis->where('status', 'Aktif')->count();
-        $nonaktifDivisi = $divisis->where('status', 'Nonaktif')->count();
+        $query = Divisi::query();
 
-        return view('admin.divisi.index', compact('divisis', 'totalDivisi', 'aktifDivisi', 'nonaktifDivisi'));
+        // Pencarian berdasarkan nama divisi atau deskripsi
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_divisi', 'like', "%{$search}%")
+                ->orWhere('deskripsi', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $divisis = $query
+            ->latest()
+            ->get();
+
+        // Statistik tetap menghitung seluruh data, bukan hasil filter
+        $totalDivisi = Divisi::count();
+        $aktifDivisi = Divisi::where('status', 'Aktif')->count();
+        $nonaktifDivisi = Divisi::where('status', 'Nonaktif')->count();
+
+        return view('admin.divisi.index', compact(
+            'divisis',
+            'totalDivisi',
+            'aktifDivisi',
+            'nonaktifDivisi'
+        ));
     }
 
     // Menyimpan data divisi baru dari modal tambah

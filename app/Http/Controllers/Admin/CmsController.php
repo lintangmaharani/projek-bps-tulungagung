@@ -51,6 +51,28 @@ class CmsController extends Controller
 
     public function update(Request $request)
     {
+        // Kosongkan seluruh poin keuntungan lama
+        for ($i = 1; $i <= 10; $i++) {
+            CmsContent::updateOrCreate(
+                ['key' => 'about_benefit_' . $i],
+                ['value' => '']
+            );
+        }
+
+        // Kosongkan seluruh FAQ lama
+        for ($i = 1; $i <= 10; $i++) {
+            CmsContent::updateOrCreate(
+                ['key' => 'faq_q_' . $i],
+                ['value' => '']
+            );
+
+            CmsContent::updateOrCreate(
+                ['key' => 'faq_a_' . $i],
+                ['value' => '']
+            );
+        }
+
+        // Simpan data yang dikirim dari form
         $data = $request->except('_token');
 
         foreach ($data as $key => $value) {
@@ -60,6 +82,8 @@ class CmsController extends Controller
             );
         }
 
-        return redirect()->back()->with('success', 'Konten Beranda, Tentang, dan FAQ berhasil diperbarui!');
+        return redirect()
+            ->back()
+            ->with('success', 'Konten Beranda, Tentang, dan FAQ berhasil diperbarui!');
     }
 }

@@ -71,12 +71,108 @@
                 <label class="text-xs font-semibold text-slate-700">Paragraf Deskripsi 2</label>
                 <textarea name="about_desc_2" rows="3" class="w-full text-xs border border-slate-300 rounded-xl px-3 py-2.5">{{ $contents['about_desc_2'] ?? '' }}</textarea>
             </div>
-            <div class="space-y-3">
-                <label class="text-xs font-semibold text-slate-700">Keuntungan / Poin yang Didapatkan (4 Poin)</label>
-                @for ($i = 1; $i <= 4; $i++)
-                    <input type="text" name="about_benefit_{{ $i }}" value="{{ $contents['about_benefit_' . $i] ?? '' }}" placeholder="Keuntungan {{ $i }}" class="w-full text-xs border border-slate-300 rounded-xl px-3 py-2.5">
-                @endfor
+            <div
+            class="space-y-3"
+            x-data="{
+                benefits: [
+                    @for($i = 1; $i <= 10; $i++)
+                        @if(!empty($contents['about_benefit_' . $i]))
+                            {
+                                id: {{ $i }},
+                                value: @js($contents['about_benefit_' . $i])
+                            },
+                        @endif
+                    @endfor
+                ],
+
+                nextId: 11,
+
+                tambahPoin() {
+                    if (this.benefits.length >= 10) {
+                        alert('Maksimal 10 poin keuntungan.');
+                        return;
+                    }
+
+                    this.benefits.push({
+                        id: this.nextId++,
+                        value: ''
+                    });
+                },
+
+                hapusPoin(index) {
+                    this.benefits.splice(index, 1);
+                }
+            }"
+        >
+
+            <div class="flex items-center justify-between gap-3">
+
+                <label class="text-xs font-semibold text-slate-700">
+                    Keuntungan / Poin yang Didapatkan
+                </label>
+
+                <button
+                    type="button"
+                    @click="tambahPoin()"
+                    class="px-3 py-2 bg-bpsBlue hover:bg-blue-900 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5"
+                >
+                    <span class="text-base leading-none">+</span>
+                    Tambah Poin
+                </button>
+
             </div>
+
+
+            <div class="space-y-2">
+
+                <template
+                    x-for="(benefit, index) in benefits"
+                    :key="benefit.id"
+                >
+
+                    <div class="flex items-center gap-2">
+
+                        <input
+                            type="text"
+                            :name="'about_benefit_' + (index + 1)"
+                            x-model="benefit.value"
+                            :placeholder="'Keuntungan ' + (index + 1)"
+                            class="flex-1 text-xs border border-slate-300 rounded-xl px-3 py-2.5"
+                        >
+
+                        <button
+                            type="button"
+                            @click="hapusPoin(index)"
+                            class="shrink-0 w-10 h-10 flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition"
+                            title="Hapus poin"
+                        >
+                            <svg
+                                class="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                            </svg>
+                        </button>
+
+                    </div>
+
+                </template>
+
+            </div>
+
+
+            <p class="text-[11px] text-slate-400">
+                Maksimal 10 poin keuntungan.
+            </p>
+
+        </div>
             <div class="pt-4 flex justify-end">
                 <button type="submit" class="px-6 py-2.5 bg-bpsBlue hover:bg-blue-900 text-white text-xs font-bold rounded-xl shadow transition">Simpan Perubahan</button>
             </div>
@@ -94,14 +190,133 @@
                 <input type="text" name="faq_subtitle" value="{{ $contents['faq_subtitle'] ?? '' }}" class="w-full text-xs border border-slate-300 rounded-xl px-3 py-2.5">
             </div>
 
-            <div class="space-y-4 pt-2">
-                @for ($i = 1; $i <= 5; $i++)
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                        <p class="text-xs font-bold text-slate-800">Pertanyaan FAQ #{{ $i }}</p>
-                        <input type="text" name="faq_q_{{ $i }}" value="{{ $contents['faq_q_' . $i] ?? '' }}" placeholder="Pertanyaan {{ $i }}" class="w-full text-xs border border-slate-300 rounded-xl px-3 py-2.5 bg-white">
-                        <textarea name="faq_a_{{ $i }}" rows="2" placeholder="Jawaban {{ $i }}" class="w-full text-xs border border-slate-300 rounded-xl px-3 py-2.5 bg-white">{{ $contents['faq_a_' . $i] ?? '' }}</textarea>
-                    </div>
-                @endfor
+            <div
+                class="space-y-4 pt-2"
+                x-data="{
+                    faqs: [
+                        @for($i = 1; $i <= 10; $i++)
+                            @if(!empty($contents['faq_q_' . $i]) || !empty($contents['faq_a_' . $i]))
+                                {
+                                    id: {{ $i }},
+                                    question: @js($contents['faq_q_' . $i] ?? ''),
+                                    answer: @js($contents['faq_a_' . $i] ?? '')
+                                },
+                            @endif
+                        @endfor
+                    ],
+
+                    nextId: 11,
+
+                    tambahFaq() {
+                        if (this.faqs.length >= 10) {
+                            alert('Maksimal 10 FAQ.');
+                            return;
+                        }
+
+                        this.faqs.push({
+                            id: this.nextId++,
+                            question: '',
+                            answer: ''
+                        });
+                    },
+
+                    hapusFaq(index) {
+                        this.faqs.splice(index, 1);
+                    }
+                }"
+            >
+
+                <!-- Header FAQ -->
+                <div class="flex items-center justify-between gap-3">
+
+                    <label class="text-xs font-semibold text-slate-700">
+                        Daftar Pertanyaan FAQ
+                    </label>
+
+                    <button
+                        type="button"
+                        @click="tambahFaq()"
+                        class="px-3 py-2 bg-bpsBlue hover:bg-blue-900 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5"
+                    >
+                        <span class="text-base leading-none">+</span>
+                        Tambah FAQ
+                    </button>
+
+                </div>
+
+
+                <!-- Daftar FAQ -->
+                <div class="space-y-4">
+
+                    <template
+                        x-for="(faq, index) in faqs"
+                        :key="faq.id"
+                    >
+
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+
+                            <!-- Judul FAQ + Hapus -->
+                            <div class="flex items-center justify-between">
+
+                                <p
+                                    class="text-xs font-bold text-slate-800"
+                                    x-text="'Pertanyaan FAQ #' + (index + 1)"
+                                ></p>
+
+                                <button
+                                    type="button"
+                                    @click="hapusFaq(index)"
+                                    class="w-9 h-9 flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition"
+                                    title="Hapus FAQ"
+                                >
+                                    <svg
+                                        class="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        />
+                                    </svg>
+                                </button>
+
+                            </div>
+
+
+                            <!-- Pertanyaan -->
+                            <input
+                                type="text"
+                                :name="'faq_q_' + (index + 1)"
+                                x-model="faq.question"
+                                :placeholder="'Pertanyaan ' + (index + 1)"
+                                class="w-full text-xs border border-slate-300 rounded-xl px-3 py-2.5 bg-white"
+                            >
+
+
+                            <!-- Jawaban -->
+                            <textarea
+                                :name="'faq_a_' + (index + 1)"
+                                x-model="faq.answer"
+                                rows="2"
+                                :placeholder="'Jawaban ' + (index + 1)"
+                                class="w-full text-xs border border-slate-300 rounded-xl px-3 py-2.5 bg-white"
+                            ></textarea>
+
+                        </div>
+
+                    </template>
+
+                </div>
+
+
+                <p class="text-[11px] text-slate-400">
+                    Maksimal 10 pertanyaan FAQ.
+                </p>
+
             </div>
 
             <div class="pt-4 flex justify-end">

@@ -52,7 +52,9 @@ Route::middleware(['auth'])->group(function () {
         // Kelola Peserta Aktif
         Route::get('/peserta-aktif', [PesertaAktifController::class, 'index'])->name('peserta.index');
         Route::get('/peserta-aktif/{pengajuan}', [PesertaAktifController::class, 'show'])->name('peserta.show');
-
+        Route::put('/peserta-aktif/jurnal/{jurnal}/verifikasi', [PesertaAktifController::class, 'verifikasiJurnal'])->name('peserta.verifikasi');
+        Route::get('/peserta-aktif/jurnal/{jurnal}/dokumentasi',[PesertaAktifController::class, 'lihatDokumentasi'])->name('peserta.dokumentasi');
+        
         // Kelola Kuota Periode Magang
         Route::resource('kuota', KuotaController::class)->except(['create', 'show', 'edit']);
 

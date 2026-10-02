@@ -224,10 +224,12 @@
                 <div class="space-y-2 pt-1">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">Yang akan didapatkan:</h4>
                     <div class="grid sm:grid-cols-2 gap-3 text-xs font-semibold text-slate-700">
-                        @for ($i = 1; $i <= 4; $i++)
+                        @for ($i = 1; $i <= 10; $i++)
                             @if(!empty($cms['about_benefit_' . $i]))
                                 <div class="flex items-center gap-2 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                                    <span class="text-emerald-500 font-bold">✓</span> {{ $cms['about_benefit_' . $i] }}
+                                    <span class="text-emerald-500 font-bold">✓</span>
+
+                                    {{ $cms['about_benefit_' . $i] }}
                                 </div>
                             @endif
                         @endfor
@@ -368,26 +370,58 @@
     <!-- 6. FAQ (Dinamis CMS) -->
     <section id="faq" class="py-24 bg-white border-t border-slate-200">
         <div class="max-w-4xl mx-auto px-6 lg:px-12">
+
+            <!-- Judul -->
             <div class="text-center mb-12 space-y-4">
-                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">{{ $cms['faq_title'] ?? 'Pertanyaan Umum (FAQ)' }}</h2>
-                <p class="text-slate-500 text-sm">{{ $cms['faq_subtitle'] ?? '' }}</p>
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+                    {{ $cms['faq_title'] ?? 'Pertanyaan Umum (FAQ)' }}
+                </h2>
+
+                <p class="text-slate-500 text-sm">
+                    {{ $cms['faq_subtitle'] ?? '' }}
+                </p>
             </div>
 
+
+            <!-- Daftar FAQ -->
             <div class="space-y-4">
-                @for ($i = 1; $i <= 5; $i++)
-                    @if(!empty($cms['faq_q_' . $i]))
-                        <div class="border border-slate-200 rounded-2xl overflow-hidden hover:border-bpsSky/50 transition-colors">
-                            <button class="faq-btn w-full text-left px-6 py-5 flex justify-between items-center bg-slate-50 hover:bg-slate-100/50 transition">
-                                <span class="font-bold text-slate-800 text-sm">{{ $cms['faq_q_' . $i] }}</span>
-                                <span class="transform transition-transform duration-300 text-slate-400 text-xs font-bold">▲</span>
+
+                @for ($i = 1; $i <= 10; $i++)
+
+                    @if(!empty($cms['faq_q_' . $i]) && !empty($cms['faq_a_' . $i]))
+
+                        <div class="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+
+                            <!-- Pertanyaan -->
+                            <button
+                                type="button"
+                                class="faq-btn w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-slate-50 transition"
+                            >
+                                <span class="text-sm font-bold text-slate-800">
+                                    {{ $cms['faq_q_' . $i] }}
+                                </span>
+
+                                <span class="text-bpsBlue text-lg font-bold transition-transform duration-200">
+                                    ↓
+                                </span>
                             </button>
-                            <div class="faq-content hidden px-6 py-5 bg-white text-sm text-slate-600 border-t border-slate-100">
-                                {{ $cms['faq_a_' . $i] }}
+
+
+                            <!-- Jawaban -->
+                            <div class="hidden px-5 pb-5 border-t border-slate-100">
+                                <p class="text-sm text-slate-600 leading-relaxed pt-4">
+                                    {{ $cms['faq_a_' . $i] }}
+                                </p>
                             </div>
+
                         </div>
+
                     @endif
+
                 @endfor
+
             </div>
+
         </div>
     </section>
 

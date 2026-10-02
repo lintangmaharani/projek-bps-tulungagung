@@ -21,6 +21,7 @@ class Jurnal extends Model
         'file_dokumentasi',
         'status_verifikasi',
         'feedback_admin',
+        'sudah_dilihat',
     ];
     protected $casts = [
         'tanggal' => 'date',

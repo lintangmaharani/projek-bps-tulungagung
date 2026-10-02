@@ -8,10 +8,12 @@ use App\Models\Divisi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class JurnalController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
@@ -28,12 +30,80 @@ class JurnalController extends Controller
         // Ambil daftar divisi yang aktif untuk ditampilkan pada dropdown pilihan di form
         $divisis = Divisi::where('status', 'Aktif')->get();
 
-        $jurnals = Jurnal::where('user_id', $user->id)
-            ->with('divisi') // Pastikan model Jurnal memiliki relasi ke Divisi
+        $query = Jurnal::where('user_id', $user->id)
+            ->with('divisi');
+
+        // Pencarian kegiatan, deskripsi, atau divisi
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('kegiatan', 'like', "%{$search}%")
+                ->orWhere('deskripsi', 'like', "%{$search}%")
+                ->orWhereHas('divisi', function ($d) use ($search) {
+                    $d->where('nama_divisi', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        // Filter status verifikasi
+        if ($request->filled('status')) {
+            $query->where('status_verifikasi', $request->status);
+        }
+
+        $jurnals = $query
             ->orderBy('tanggal', 'desc')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return view('mahasiswa.jurnal.index', compact('pengajuan', 'jurnals', 'divisis'));
+    }
+
+    private function validateTanggalDanJam(Request $request): void
+    {
+        $tanggal = Carbon::parse($request->tanggal);
+        $hari = $tanggal->dayOfWeek;
+
+        // Tanggal hanya boleh hari ini sampai 2 hari ke belakang
+        if (
+            $tanggal->lt(now()->startOfDay()->subDays(2)) ||
+            $tanggal->gt(now()->endOfDay())
+        ) {
+            throw ValidationException::withMessages([
+                'tanggal' => 'Tanggal jurnal hanya dapat dipilih maksimal 2 hari ke belakang dan tidak boleh tanggal yang akan datang.',
+            ]);
+        }
+
+        // Sabtu dan Minggu tidak diperbolehkan
+        if ($hari === Carbon::SATURDAY || $hari === Carbon::SUNDAY) {
+            throw ValidationException::withMessages([
+                'tanggal' => 'Jurnal kegiatan hanya dapat diisi untuk hari Senin sampai Jumat.',
+            ]);
+        }
+
+        $jamMulai = $request->jam_mulai;
+        $jamSelesai = $request->jam_selesai;
+
+        $batasMulai = '07:30';
+        $batasSelesai = $hari === Carbon::FRIDAY ? '16:30' : '16:00';
+
+        if ($jamMulai < $batasMulai || $jamMulai > $batasSelesai) {
+            throw ValidationException::withMessages([
+                'jam_mulai' => "Jam mulai harus berada dalam rentang {$batasMulai} - {$batasSelesai}.",
+            ]);
+        }
+
+        if ($jamSelesai <= $jamMulai) {
+            throw ValidationException::withMessages([
+                'jam_selesai' => 'Jam selesai harus lebih besar dari jam mulai.',
+            ]);
+        }
+
+        if ($jamSelesai > $batasSelesai) {
+            throw ValidationException::withMessages([
+                'jam_selesai' => "Jam selesai maksimal pukul {$batasSelesai}.",
+            ]);
+        }
     }
 
     public function store(Request $request)
@@ -44,14 +114,16 @@ class JurnalController extends Controller
             ->firstOrFail();
 
         $request->validate([
-            'divisi_id'        => 'required|exists:divisis,id', // Validasi pilihan divisi
+            'divisi_id'        => 'required|exists:divisis,id',
             'tanggal'          => 'required|date',
-            'jam_mulai'        => 'nullable|date_format:H:i',
-            'jam_selesai'      => 'nullable|date_format:H:i|after_or_equal:jam_mulai',
+            'jam_mulai'        => 'required|date_format:H:i',
+            'jam_selesai'      => 'required|date_format:H:i',
             'kegiatan'         => 'required|string|max:255',
             'deskripsi'        => 'required|string',
             'file_dokumentasi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:3072',
         ]);
+
+        $this->validateTanggalDanJam($request);
 
         $filePath = null;
         if ($request->hasFile('file_dokumentasi')) {
@@ -90,15 +162,27 @@ class JurnalController extends Controller
             abort(403);
         }
 
+        $request->merge([
+            'jam_mulai' => $request->jam_mulai
+                ? substr($request->jam_mulai, 0, 5)
+                : null,
+
+            'jam_selesai' => $request->jam_selesai
+                ? substr($request->jam_selesai, 0, 5)
+                : null,
+        ]);
+
         $request->validate([
             'divisi_id'        => 'required|exists:divisis,id',
             'tanggal'          => 'required|date',
-            'jam_mulai'        => 'nullable',
-            'jam_selesai'      => 'nullable',
+            'jam_mulai'        => 'required|date_format:H:i',
+            'jam_selesai'      => 'required|date_format:H:i',
             'kegiatan'         => 'required|string|max:255',
             'deskripsi'        => 'required|string',
             'file_dokumentasi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:3072',
         ]);
+
+        $this->validateTanggalDanJam($request);
 
         if ($request->hasFile('file_dokumentasi')) {
             if ($jurnal->file_dokumentasi && Storage::disk('public')->exists($jurnal->file_dokumentasi)) {
