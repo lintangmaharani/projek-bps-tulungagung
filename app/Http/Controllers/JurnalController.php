@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Jurnal;
 use App\Models\Pengajuan;
-use App\Models\Divisi; 
+use App\Models\Divisi;
+use App\Models\User; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
+use App\Notifications\NotifPesertaUploadJurnal;
 
 class JurnalController extends Controller
 {
@@ -130,7 +132,7 @@ class JurnalController extends Controller
             $filePath = $request->file('file_dokumentasi')->store('dokumentasi_jurnal', 'public');
         }
 
-        Jurnal::create([
+        $jurnal = Jurnal::create([
             'user_id'          => $user->id,
             'pengajuan_id'     => $pengajuan->id,
             'divisi_id'        => $request->divisi_id,
@@ -141,6 +143,11 @@ class JurnalController extends Controller
             'deskripsi'        => $request->deskripsi,
             'file_dokumentasi' => $filePath,
         ]);
+
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new NotifPesertaUploadJurnal($jurnal, $user));
+        }
 
         return redirect()->back()->with('success', 'Jurnal harian berhasil dicatat.');
     }

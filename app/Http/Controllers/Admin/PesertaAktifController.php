@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Pengajuan;
 use App\Models\Jurnal;
 use Illuminate\Http\Request;
+use App\Notifications\NotifAdminVerifikasiJurnal;
 
 class PesertaAktifController extends Controller
 {
@@ -92,6 +93,15 @@ class PesertaAktifController extends Controller
             'status_verifikasi' => $request->status_verifikasi,
             'feedback_admin' => $request->feedback_admin,
         ]);
+
+        $peserta = $jurnal->user;
+        if ($peserta) {
+            $peserta->notify(new NotifAdminVerifikasiJurnal(
+                $jurnal, 
+                $request->status_verifikasi, 
+                $request->feedback_admin
+            ));
+        }
 
         return back()->with(
             'success',

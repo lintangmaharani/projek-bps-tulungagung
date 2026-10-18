@@ -7,7 +7,7 @@
     <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <h1 class="text-xl sm:text-2xl font-black text-slate-900">Dashboard Admin BPS Kab. Tulungagung</h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">Selamat datang, <span class="font-bold text-slate-700">{{ Auth::user()->name }}</span>. Berikut adalah ringkasan data pendaftaran magang saat ini[cite: 3].</p>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">Selamat datang, <span class="font-bold text-slate-700">{{ Auth::user()->name }}</span>. Berikut adalah ringkasan data pendaftaran magang saat ini.</p>
         </div>
 
         <div class="flex items-center gap-3 shrink-0">
@@ -16,26 +16,47 @@
                 <span>📅 {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</span>
             </div>
 
-            <!-- FITUR LONCENG NOTIFIKASI -->
+            <!-- FITUR LONCENG NOTIFIKASI ADMIN -->
             <div class="relative" x-data="{ openNotif: false }">
                 <button @click="openNotif = !openNotif" class="relative p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-slate-600 transition focus:outline-none">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                     
-                    @if(isset($recentPengajuans) && $recentPengajuans->where('status', 'diproses')->count() > 0)
+                    @php
+                        $pendingPengajuanCount = isset($recentPengajuans) ? $recentPengajuans->where('status', 'diproses')->count() : 0;
+                        $unreadJurnalNotifs = auth()->user()->unreadNotifications->where('data.type', 'upload_jurnal');
+                        $totalNotif = $pendingPengajuanCount + $unreadJurnalNotifs->count();
+                    @endphp
+
+                    @if($totalNotif > 0)
                         <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white animate-pulse"></span>
                     @endif
                 </button>
 
-                <!-- Dropdown Box Notifikasi -->
+                <!-- Dropdown Box Notifikasi Admin -->
                 <div x-show="openNotif" @click.away="openNotif = false" class="absolute right-0 mt-3 w-80 bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden z-50 p-4 space-y-3" style="display: none;">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                        <h3 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Notifikasi Pengajuan Baru</h3>
+                        <h3 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Pemberitahuan Admin</h3>
                         <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-full">
-                            {{ isset($recentPengajuans) ? $recentPengajuans->where('status', 'diproses')->count() : 0 }} Pending
+                            {{ $totalNotif }} Baru
                         </span>
                     </div>
 
                     <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                        
+                        {{-- 1. NOTIFIKASI PESERTA UPLOAD JURNAL BARU --}}
+                        @foreach(auth()->user()->notifications as $notif)
+                            @if(($notif->data['type'] ?? '') === 'upload_jurnal')
+                                <a href="{{ route('admin.peserta.show', $notif->data['peserta_id'] ?? 1) }}" class="block p-3 bg-blue-50/60 hover:bg-blue-100/50 border border-blue-100 rounded-2xl transition">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs font-bold text-blue-900">{{ $notif->data['title'] ?? 'Jurnal Diunggah' }}</span>
+                                        <span class="text-[9px] text-slate-400">{{ $notif->created_at->diffForHumans() }}</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-700 mt-1 font-medium">{{ $notif->data['message'] ?? '' }}</p>
+                                </a>
+                            @endif
+                        @endforeach
+
+                        {{-- 2. NOTIFIKASI PENGAJUAN BARU --}}
                         @forelse($recentPengajuans->where('status', 'diproses') ?? [] as $notif)
                             <a href="{{ route('admin.pengajuan.index') }}" class="block p-3 bg-slate-50 hover:bg-blue-50/50 border border-slate-100 rounded-2xl transition">
                                 <p class="text-xs font-bold text-slate-800">{{ $notif->nama_lengkap }}</p>
@@ -43,12 +64,15 @@
                                 <span class="text-[9px] text-slate-400 mt-1 block">{{ $notif->created_at ? $notif->created_at->diffForHumans() : '' }}</span>
                             </a>
                         @empty
-                            <p class="text-center text-xs text-slate-400 py-4">Tidak ada pengajuan baru yang menunggu.</p>
+                            @if(auth()->user()->notifications->where('data.type', 'upload_jurnal')->count() === 0)
+                                <p class="text-center text-xs text-slate-400 py-4">Tidak ada pemberitahuan baru.</p>
+                            @endif
                         @endforelse
+
                     </div>
 
                     <div class="pt-1 text-center border-t border-slate-100">
-                        <a href="{{ route('admin.pengajuan.index') }}" class="text-[11px] font-bold text-blue-600 hover:underline">Kelola Semua Pengajuan &rarr;</a>
+                        <a href="{{ route('admin.peserta.index') }}" class="text-[11px] font-bold text-blue-600 hover:underline">Kelola Peserta Aktif &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -81,7 +105,7 @@
                 <h3 class="text-2xl font-black text-emerald-600">{{ $totalAktif ?? 0 }}</h3>
                 <span class="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">Sedang Berjalan</span>
             </div>
-            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl font-bold">✨</div>
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl font-bold">💼</div>
         </div>
 
         <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
@@ -106,7 +130,7 @@
                 <canvas id="pendaftarChart"></canvas>
             </div>
             <div class="text-center text-xs text-slate-400">
-                Data real-time dari database BPS Tulungagung[cite: 3]
+                Data real-time dari database BPS Tulungagung
             </div>
         </div>
 
@@ -115,7 +139,7 @@
             <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h3 class="font-extrabold text-base text-slate-900">Pengajuan Pendaftar Terbaru</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Daftar peserta yang baru saja mengirimkan formulir permohonan[cite: 3].</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Daftar peserta yang baru saja mengirimkan formulir permohonan.</p>
                 </div>
                 <a href="{{ route('admin.pengajuan.index') }}" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">Kelola Semua &rarr;</a>
             </div>

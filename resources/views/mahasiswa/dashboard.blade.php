@@ -22,7 +22,8 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                     
                     @php
-                        $pendingCount = isset($pengajuans) ? $pengajuans->where('status', 'diproses')->count() : 0;
+                        $unreadNotifs = auth()->user()->unreadNotifications;
+                        $pendingCount = (isset($pengajuans) ? $pengajuans->where('status', 'diproses')->count() : 0) + $unreadNotifs->count();
                     @endphp
                     @if($pendingCount > 0)
                         <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white animate-pulse"></span>
@@ -39,7 +40,27 @@
                     </div>
 
                     <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
-                        <!-- Notifikasi Status Pengajuan -->
+                        
+                        {{-- 1. NOTIFIKASI VERIFIKASI JURNAL DARI ADMIN --}}
+                        @foreach(auth()->user()->notifications as $notif)
+                            @if(($notif->data['type'] ?? '') === 'verifikasi_jurnal')
+                                <div class="p-3 bg-blue-50/60 border border-blue-100 rounded-2xl">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs font-bold text-slate-800">{{ $notif->data['title'] ?? 'Verifikasi Jurnal' }}</span>
+                                        <span class="text-[9px] text-slate-400">{{ $notif->created_at->diffForHumans() }}</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-600 mt-1">{{ $notif->data['message'] ?? '' }}</p>
+                                    
+                                    @if(!empty($notif->data['catatan']))
+                                        <p class="text-[10px] text-orange-600 font-semibold mt-1 bg-orange-50 p-1.5 rounded-lg border border-orange-100">
+                                            Catatan Admin: "{{ $notif->data['catatan'] }}"
+                                        </p>
+                                    @endif
+                                </div>
+                            @endif
+                        @endforeach
+
+                        <!-- 2. Notifikasi Status Pengajuan -->
                         @forelse($pengajuans ?? [] as $item)
                             <a href="{{ route('pengajuan.status') }}" class="block p-3 bg-slate-50 hover:bg-blue-50/50 border border-slate-100 rounded-2xl transition">
                                 <div class="flex justify-between items-center">
@@ -55,10 +76,12 @@
                                 <span class="text-[9px] text-slate-400 mt-1 block">{{ $item->updated_at ? $item->updated_at->diffForHumans() : '' }}</span>
                             </a>
                         @empty
-                            <p class="text-center text-xs text-slate-400 py-4">Belum ada riwayat pengajuan.</p>
+                            @if(auth()->user()->notifications->where('data.type', 'verifikasi_jurnal')->count() === 0)
+                                <p class="text-center text-xs text-slate-400 py-4">Belum ada riwayat aktivitas.</p>
+                            @endif
                         @endforelse
 
-                        <!-- Notifikasi Sertifikat (Jika Ada) -->
+                        <!-- 3. Notifikasi Sertifikat -->
                         @foreach($sertifikats ?? [] as $cert)
                             <a href="{{ route('mahasiswa.sertifikat') }}" class="block p-3 bg-purple-50/50 hover:bg-purple-50 border border-purple-100 rounded-2xl transition">
                                 <div class="flex justify-between items-center">
@@ -70,7 +93,7 @@
                     </div>
 
                     <div class="pt-1 text-center border-t border-slate-100">
-                        <a href="{{ route('pengajuan.status') }}" class="text-[11px] font-bold text-blue-600 hover:underline">Cek Status Selengkapnya &rarr;</a>
+                        <a href="{{ route('jurnal.index') }}" class="text-[11px] font-bold text-blue-600 hover:underline">Lihat Riwayat Jurnal &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -90,7 +113,7 @@
         </a>
 
         <!-- Kartu 2: Jurnal Kegiatan -->
-        <a href="{{ route('mahasiswa.jurnal.index') }}" class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-blue-500 hover:shadow-md transition block group">
+        <a href="{{ route('jurnal.index') }}" class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-blue-500 hover:shadow-md transition block group">
             <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider group-hover:text-blue-600 transition">Jurnal Kegiatan</div>
             <div class="text-lg font-bold text-slate-800 flex items-center justify-between">
                 <span>Catatan Harian</span>
