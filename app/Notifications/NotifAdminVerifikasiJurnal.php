@@ -32,7 +32,7 @@ class NotifAdminVerifikasiJurnal extends Notification
         return [
             'type'      => 'verifikasi_jurnal',
             'title'     => 'Status Jurnal Diperbarui',
-            'message'   => "Jurnal Anda ('{$this->jurnal->judul}') telah diverifikasi dengan status: {$this->status}.",
+            'message'   => "Jurnal Anda ('{$this->jurnal->kegiatan}') telah diverifikasi dengan status: {$this->status}.",
             'catatan'   => $this->catatan,
             'jurnal_id' => $this->jurnal->id,
         ];
